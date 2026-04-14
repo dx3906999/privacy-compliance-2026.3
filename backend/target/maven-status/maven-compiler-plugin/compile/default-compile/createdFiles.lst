@@ -1,14 +1,1 @@
-com\example\privacy\dto\LoginDTO.class
-com\example\privacy\controller\DocumentController.class
-com\example\privacy\service\DocumentService.class
-com\example\privacy\controller\RuleController.class
-com\example\privacy\controller\AnalyzeController.class
-com\example\privacy\config\CorsConfig.class
-com\example\privacy\dto\RegisterDTO.class
-com\example\privacy\service\AuthService.class
-com\example\privacy\service\AnalyzeService.class
-com\example\privacy\dto\AnalyzeRequestDTO.class
-com\example\privacy\dto\DocumentUploadDTO.class
-com\example\privacy\PrivacyComplianceApplication.class
-com\example\privacy\util\Result.class
-com\example\privacy\controller\AuthController.class
+com/example/privacy/config/GlobalExceptionHandler.class
