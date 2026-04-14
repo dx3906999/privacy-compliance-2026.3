@@ -82,11 +82,11 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 100, message: '密码长度必须在6-100个字符之间', trigger: 'blur' }
+    { min: 6, max: 72, message: '密码长度必须在6-72个字符之间', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
-    { min: 6, max: 100, message: '密码长度必须在6-100个字符之间', trigger: 'blur' }
+    { min: 6, max: 72, message: '密码长度必须在6-72个字符之间', trigger: 'blur' }
   ]
 }
 

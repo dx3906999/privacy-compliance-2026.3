@@ -41,6 +41,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleException(Exception ex) {
+        // 记录完整异常信息用于调试
+        System.err.println("Unhandled exception: " + ex.getMessage());
+        ex.printStackTrace(System.err);
         return Result.error(500, "服务器内部错误，请稍后重试");
     }
 }

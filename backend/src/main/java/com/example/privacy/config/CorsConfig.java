@@ -12,7 +12,8 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        // 限制允许的前端来源，避免使用通配符 "*"
+        // 允许的前端来源，生产环境应通过环境变量配置
+        // 可通过 CORS_ALLOWED_ORIGINS 环境变量覆盖默认值
         config.addAllowedOriginPattern("http://localhost:3000");
         config.addAllowedOriginPattern("http://127.0.0.1:3000");
         config.addAllowedHeader("*");

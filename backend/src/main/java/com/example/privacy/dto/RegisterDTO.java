@@ -9,7 +9,7 @@ public class RegisterDTO {
     private String username;
 
     @NotBlank(message = "密码不能为空")
-    @Size(min = 6, max = 100, message = "密码长度必须在6-100个字符之间")
+    @Size(min = 6, max = 72, message = "密码长度必须在6-72个字符之间")
     private String password;
     
     public String getUsername() {

@@ -100,8 +100,15 @@ public class DocumentController {
         if (lastSlash >= 0) {
             sanitized = sanitized.substring(lastSlash + 1);
         }
-        // 移除特殊字符
+        // 移除特殊字符，保留字母、数字、中文、下划线、连字符和点
         sanitized = sanitized.replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5._\\-]", "_");
+        // 防止双扩展名攻击：仅保留最后一个点作为扩展名分隔符
+        int lastDot = sanitized.lastIndexOf('.');
+        if (lastDot > 0) {
+            String name = sanitized.substring(0, lastDot).replace(".", "_");
+            String ext = sanitized.substring(lastDot);
+            sanitized = name + ext;
+        }
         return sanitized.isBlank() ? "unnamed" : sanitized;
     }
 }
