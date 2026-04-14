@@ -166,6 +166,10 @@ const editRule = (row) => {
 }
 
 const saveRule = () => {
+  if (!ruleForm.ruleName || !ruleForm.ruleType || !ruleForm.riskLevel) {
+    ElMessage.warning('请填写必要字段')
+    return
+  }
   if (ruleForm.id) {
     // 编辑
     const index = ruleList.value.findIndex(item => item.id === ruleForm.id)
@@ -174,8 +178,9 @@ const saveRule = () => {
     }
     ElMessage.success('更新成功')
   } else {
-    // 新增
-    const newId = Math.max(...ruleList.value.map(item => item.id)) + 1
+    // 新增 - 安全处理空数组情况
+    const ids = ruleList.value.map(item => item.id)
+    const newId = ids.length > 0 ? Math.max(...ids) + 1 : 1
     ruleList.value.unshift({ ...ruleForm, id: newId })
     ElMessage.success('添加成功')
   }
@@ -190,7 +195,9 @@ const deleteRule = (row) => {
   }).then(() => {
     ruleList.value = ruleList.value.filter(item => item.id !== row.id)
     ElMessage.success('删除成功')
-  }).catch(() => {})
+  }).catch(() => {
+    // 用户取消删除操作
+  })
 }
 </script>
 

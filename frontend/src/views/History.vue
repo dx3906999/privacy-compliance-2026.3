@@ -79,7 +79,9 @@ const deleteRecord = (row) => {
   }).then(() => {
     historyList.value = historyList.value.filter(item => item.id !== row.id)
     ElMessage.success('删除成功')
-  }).catch(() => {})
+  }).catch(() => {
+    // 用户取消删除操作
+  })
 }
 </script>
 

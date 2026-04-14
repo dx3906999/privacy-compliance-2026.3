@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
@@ -72,6 +72,7 @@ const progressVisible = ref(false)
 const progress = ref(0)
 const progressStatus = ref('')
 const progressText = ref('正在分析...')
+let progressInterval = null
 
 const handleFileChange = (file) => {
   selectedFile.value = file.raw
@@ -145,13 +146,26 @@ const handleSubmit = async () => {
 
 const simulateProgress = () => {
   progress.value = 0
-  const interval = setInterval(() => {
+  clearProgressInterval()
+  progressInterval = setInterval(() => {
     progress.value += 10
     if (progress.value >= 90) {
-      clearInterval(interval)
+      clearProgressInterval()
     }
   }, 300)
 }
+
+const clearProgressInterval = () => {
+  if (progressInterval) {
+    clearInterval(progressInterval)
+    progressInterval = null
+  }
+}
+
+// 组件卸载时清理定时器，防止内存泄漏
+onUnmounted(() => {
+  clearProgressInterval()
+})
 </script>
 
 <style scoped>

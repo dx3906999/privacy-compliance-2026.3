@@ -54,7 +54,13 @@ import { Upload, Document, Setting } from '@element-plus/icons-vue'
 const router = useRouter()
 const route = useRoute()
 
-const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || '{}'))
+const userInfo = ref((() => {
+  try {
+    return JSON.parse(localStorage.getItem('userInfo') || '{}')
+  } catch (e) {
+    return {}
+  }
+})())
 
 const activeMenu = computed(() => route.path)
 
