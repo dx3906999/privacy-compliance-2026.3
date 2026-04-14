@@ -4,14 +4,14 @@ import com.example.privacy.util.Result;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("/api/rules")
-@CrossOrigin
 public class RuleController {
     
-    // 内存存储假规则数据
-    private List<Map<String, Object>> ruleList = new ArrayList<>();
+    // 使用线程安全的集合存储规则数据
+    private final List<Map<String, Object>> ruleList = new CopyOnWriteArrayList<>();
     
     public RuleController() {
         // 初始化假数据
@@ -66,19 +66,39 @@ public class RuleController {
     
     @PutMapping("/update")
     public Result<Void> updateRule(@RequestBody Map<String, Object> rule) {
-        Long id = Long.valueOf(rule.get("id").toString());
-        for (int i = 0; i < ruleList.size(); i++) {
-            if (ruleList.get(i).get("id").equals(id)) {
-                ruleList.set(i, rule);
-                break;
-            }
+        Object idObj = rule.get("id");
+        if (idObj == null) {
+            return Result.error(400, "规则ID不能为空");
         }
-        return Result.success();
+        try {
+            Long id = Long.valueOf(idObj.toString());
+            for (int i = 0; i < ruleList.size(); i++) {
+                Object existingId = ruleList.get(i).get("id");
+                if (existingId != null && Long.valueOf(existingId.toString()).equals(id)) {
+                    ruleList.set(i, rule);
+                    return Result.success();
+                }
+            }
+            return Result.error(404, "未找到指定规则");
+        } catch (NumberFormatException e) {
+            return Result.error(400, "规则ID格式错误");
+        }
     }
     
     @DeleteMapping("/{id}")
     public Result<Void> deleteRule(@PathVariable Long id) {
-        ruleList.removeIf(rule -> rule.get("id").equals(id));
+        boolean removed = ruleList.removeIf(rule -> {
+            Object ruleId = rule.get("id");
+            if (ruleId == null) return false;
+            try {
+                return Long.valueOf(ruleId.toString()).equals(id);
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        });
+        if (!removed) {
+            return Result.error(404, "未找到指定规则");
+        }
         return Result.success();
     }
 }
