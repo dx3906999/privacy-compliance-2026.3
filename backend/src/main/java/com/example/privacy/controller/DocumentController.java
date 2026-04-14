@@ -3,6 +3,7 @@ package com.example.privacy.controller;
 import com.example.privacy.dto.DocumentUploadDTO;
 import com.example.privacy.service.DocumentService;
 import com.example.privacy.util.Result;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/document")
-@CrossOrigin
 public class DocumentController {
     
     @Autowired
@@ -20,18 +20,28 @@ public class DocumentController {
     
     @PostMapping("/upload")
     public Result<Map<String, Object>> uploadFile(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return Result.error(400, "上传文件不能为空");
+        }
+        String originalFilename = file.getOriginalFilename();
+        // 防止路径遍历攻击：仅保留文件名部分
+        String safeFilename = sanitizeFilename(originalFilename);
+        String fileType = getFileType(safeFilename);
+        if ("unknown".equals(fileType)) {
+            return Result.error(400, "不支持的文件类型，仅支持 txt/pdf/doc/docx");
+        }
         // 第一阶段：假文件上传
         Map<String, Object> data = new HashMap<>();
         data.put("id", System.currentTimeMillis());
-        data.put("title", file.getOriginalFilename());
-        data.put("fileName", file.getOriginalFilename());
-        data.put("fileType", getFileType(file.getOriginalFilename()));
+        data.put("title", safeFilename);
+        data.put("fileName", safeFilename);
+        data.put("fileType", fileType);
         data.put("rawText", "假文本内容...");
         return Result.success(data);
     }
     
     @PostMapping("/text")
-    public Result<Map<String, Object>> submitText(@RequestBody DocumentUploadDTO dto) {
+    public Result<Map<String, Object>> submitText(@Valid @RequestBody DocumentUploadDTO dto) {
         Map<String, Object> data = new HashMap<>();
         data.put("id", System.currentTimeMillis());
         data.put("title", dto.getTitle());
@@ -70,9 +80,35 @@ public class DocumentController {
     
     private String getFileType(String filename) {
         if (filename == null) return "unknown";
-        if (filename.endsWith(".pdf")) return "PDF";
-        if (filename.endsWith(".doc") || filename.endsWith(".docx")) return "WORD";
-        if (filename.endsWith(".txt")) return "TXT";
+        String lowerName = filename.toLowerCase();
+        if (lowerName.endsWith(".pdf")) return "PDF";
+        if (lowerName.endsWith(".doc") || lowerName.endsWith(".docx")) return "WORD";
+        if (lowerName.endsWith(".txt")) return "TXT";
         return "unknown";
+    }
+
+    /**
+     * 清理文件名，移除路径分隔符防止路径遍历攻击
+     */
+    private String sanitizeFilename(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return "unnamed";
+        }
+        // 移除路径分隔符，仅保留文件名
+        String sanitized = filename.replace("\\", "/");
+        int lastSlash = sanitized.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            sanitized = sanitized.substring(lastSlash + 1);
+        }
+        // 移除特殊字符，保留字母、数字、中文、下划线、连字符和点
+        sanitized = sanitized.replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5._\\-]", "_");
+        // 防止双扩展名攻击：仅保留最后一个点作为扩展名分隔符
+        int lastDot = sanitized.lastIndexOf('.');
+        if (lastDot > 0) {
+            String name = sanitized.substring(0, lastDot).replace(".", "_");
+            String ext = sanitized.substring(lastDot);
+            sanitized = name + ext;
+        }
+        return sanitized.isBlank() ? "unnamed" : sanitized;
     }
 }

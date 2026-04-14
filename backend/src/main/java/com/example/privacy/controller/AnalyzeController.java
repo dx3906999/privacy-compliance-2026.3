@@ -3,6 +3,7 @@ package com.example.privacy.controller;
 import com.example.privacy.dto.AnalyzeRequestDTO;
 import com.example.privacy.service.AnalyzeService;
 import com.example.privacy.util.Result;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,14 +11,13 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/analyze")
-@CrossOrigin
 public class AnalyzeController {
     
     @Autowired
     private AnalyzeService analyzeService;
     
     @PostMapping("/start")
-    public Result<Map<String, Object>> startAnalyze(@RequestBody AnalyzeRequestDTO dto) {
+    public Result<Map<String, Object>> startAnalyze(@Valid @RequestBody AnalyzeRequestDTO dto) {
         // 第一阶段：假分析任务
         Map<String, Object> data = new HashMap<>();
         data.put("taskId", System.currentTimeMillis());

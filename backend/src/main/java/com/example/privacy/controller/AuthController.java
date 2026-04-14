@@ -4,6 +4,7 @@ import com.example.privacy.dto.LoginDTO;
 import com.example.privacy.dto.RegisterDTO;
 import com.example.privacy.service.AuthService;
 import com.example.privacy.util.Result;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,14 +13,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin
 public class AuthController {
     
     @Autowired
     private AuthService authService;
     
     @PostMapping("/login")
-    public Result<Map<String, Object>> login(@RequestBody LoginDTO loginDTO) {
+    public Result<Map<String, Object>> login(@Valid @RequestBody LoginDTO loginDTO) {
         // 第一阶段：假登录验证
         if ("admin".equals(loginDTO.getUsername()) && "123456".equals(loginDTO.getPassword())) {
             Map<String, Object> data = new HashMap<>();
@@ -37,7 +37,7 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public Result<Map<String, Object>> register(@RequestBody RegisterDTO registerDTO) {
+    public Result<Map<String, Object>> register(@Valid @RequestBody RegisterDTO registerDTO) {
         // 第一阶段：假注册
         Map<String, Object> data = new HashMap<>();
         data.put("id", System.currentTimeMillis());

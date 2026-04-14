@@ -65,8 +65,8 @@ const loading = ref(false)
 const showRegister = ref(false)
 
 const loginForm = reactive({
-  username: 'admin',
-  password: '123456'
+  username: '',
+  password: ''
 })
 
 const registerForm = reactive({
@@ -76,9 +76,18 @@ const registerForm = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  confirmPassword: [{ required: true, message: '请确认密码', trigger: 'blur' }]
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 1, max: 50, message: '用户名长度不能超过50个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 72, message: '密码长度必须在6-72个字符之间', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    { min: 6, max: 72, message: '密码长度必须在6-72个字符之间', trigger: 'blur' }
+  ]
 }
 
 const handleLogin = async () => {

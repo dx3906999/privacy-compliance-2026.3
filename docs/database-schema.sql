@@ -29,7 +29,8 @@ CREATE TABLE document (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_user_id (user_id),
-    INDEX idx_status (parse_status)
+    INDEX idx_status (parse_status),
+    CONSTRAINT fk_document_user FOREIGN KEY (user_id) REFERENCES sys_user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档表';
 
 -- 3. 条款表
@@ -39,7 +40,8 @@ CREATE TABLE clause (
     clause_no INT NOT NULL,
     clause_text TEXT NOT NULL,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_document_id (document_id)
+    INDEX idx_document_id (document_id),
+    CONSTRAINT fk_clause_document FOREIGN KEY (document_id) REFERENCES document(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='条款表';
 
 -- 4. 分析任务表
@@ -54,7 +56,8 @@ CREATE TABLE analysis_task (
     end_time DATETIME,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_document_id (document_id),
-    INDEX idx_status (task_status)
+    INDEX idx_status (task_status),
+    CONSTRAINT fk_task_document FOREIGN KEY (document_id) REFERENCES document(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分析任务表';
 
 -- 5. 条款分析结果表
@@ -63,14 +66,16 @@ CREATE TABLE clause_result (
     task_id BIGINT NOT NULL,
     clause_id BIGINT NOT NULL,
     model_label VARCHAR(100),
-    model_score DECIMAL(5,4),
+    model_score DECIMAL(5,2),
     rule_hit VARCHAR(255),
     risk_level VARCHAR(20),
     law_reference VARCHAR(255),
     suggestion TEXT,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_task_id (task_id),
-    INDEX idx_clause_id (clause_id)
+    INDEX idx_clause_id (clause_id),
+    CONSTRAINT fk_result_task FOREIGN KEY (task_id) REFERENCES analysis_task(id),
+    CONSTRAINT fk_result_clause FOREIGN KEY (clause_id) REFERENCES clause(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='条款分析结果表';
 
 -- 6. 规则表
@@ -112,12 +117,13 @@ CREATE TABLE operation_log (
     request_path VARCHAR(255),
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_user_id (user_id),
-    INDEX idx_type (operation_type)
+    INDEX idx_type (operation_type),
+    CONSTRAINT fk_log_user FOREIGN KEY (user_id) REFERENCES sys_user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
 
--- 初始化数据 - 管理员账号
+-- 初始化数据 - 管理员账号 (密码: admin123，使用 bcrypt 加密)
 INSERT INTO sys_user (username, password, real_name, role, email, status) 
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKTglzK4xqXqXqXqXqXqXqXqXqXq', '管理员', 'ADMIN', 'admin@example.com', 1);
+VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt9WJfYMgMIvXIhVOPkMnj1Aqa6', '管理员', 'ADMIN', 'admin@example.com', 1);
 
 -- 初始化数据 - 规则
 INSERT INTO rule_info (rule_name, rule_type, risk_type, pattern, law_reference, risk_level, suggestion, enabled) VALUES

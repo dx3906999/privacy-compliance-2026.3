@@ -48,4 +48,25 @@ const router = createRouter({
   routes
 })
 
+// 路由守卫：验证登录状态
+const whiteList = ['/login']
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    // 已登录，访问登录页则重定向到首页
+    if (to.path === '/login') {
+      next('/home')
+    } else {
+      next()
+    }
+  } else {
+    // 未登录，白名单路由直接放行
+    if (whiteList.includes(to.path)) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
+})
+
 export default router

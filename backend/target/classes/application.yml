@@ -8,6 +8,7 @@ spring:
     name: privacy-compliance
   
   # H2 数据库配置（开发用，第一阶段用假数据）
+  # 注意：生产环境应切换为 MySQL，并设置安全密码
   datasource:
     url: jdbc:h2:mem:privacydb
     driver-class-name: org.h2.Driver
@@ -16,13 +17,16 @@ spring:
   
   h2:
     console:
+      # 注意：生产环境必须设置为 false
       enabled: true
       path: /h2-console
   
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
+      # 注意：生产环境应设置为 validate 或 none
       ddl-auto: create-drop
+    # 注意：生产环境应设置为 false，避免日志泄露敏感信息
     show-sql: true
   
   servlet:
@@ -31,8 +35,9 @@ spring:
       max-request-size: 10MB
 
 # JWT 配置
+# 注意：生产环境必须使用环境变量配置密钥，不可在代码中硬编码
 jwt:
-  secret: privacy-compliance-secret-key-2026
+  secret: ${JWT_SECRET:privacy-compliance-secret-key-2026}
   expiration: 86400000
 
 # API 配置
